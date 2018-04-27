@@ -42,7 +42,11 @@ def download_file(url):
 def read_file(local_file):
     with open(local_file, 'r') as f:
         for line in f:
-            re.match()
+            if re.search(r'^[a-zA-Z]', line[0]):
+                print(line.replace(' ', '').lower())
+
+
+
 
 
 def main(arg):
@@ -60,14 +64,16 @@ def main(arg):
     if arg.endswith('.gz'):
         unzip_file(local_filename)
         print('Function unzip Done')
-    print('work with file')
-    # read_file(arg)
-    print('work with file Done ')
+    # print('work with file')
+    read_file(arg)
+    # print('work with file Done ')
 
 
 if __name__ == '__main__':
     while True:
-        command = str(input('Enter path to the file or URL: '))
+        #command = str(input('Enter path to the file or URL: '))
+        # command = '10K-english-words.txt'
+        command = 'file.txt'
         if command != 'exit':
             if command.endswith(('.txt', '.txt.gz')):
                 main(command)

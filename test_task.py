@@ -1,15 +1,15 @@
 import os
 import shutil
 import sys
-import requests
 import gzip
 import re
+import requests
 
 
 def copy_files(source, destination=os.getcwd()):
     if sys.platform == 'win32':
         os.system('xcopy {0} {1}'.format(source, destination))
-        #shutil.copyfileobj(f_in, f_out) TODO: Check on Win 10
+        #shutil.copyfileobj(source, destination) TODO: Check on Win 10
     else:
         shutil.copy(source, destination)
 
@@ -35,7 +35,6 @@ def download_file(url):
             for chunk in my_request.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-        print(type(local_filename))
         return local_filename
     return None
 
@@ -47,19 +46,23 @@ def read_file(local_file):
 
 
 def main(arg):
+    local_filename = arg.split('/')[-1]
     if arg.startswith('http'):
         downloaded_file = download_file(arg)
         if downloaded_file == None:
             print('File not found!')
         else:
             print('File: {0} is downloaded!'.format(download_file))
-    else:
-        if not os.path.isfile(arg):
+    if '/' in arg: #TODO: Add backslash from win32
+        if os.path.isfile(arg):
             copy_files(arg)
-        local_filename = arg.split('/')[-1]
         print('File: copy {} created'.format(local_filename))
+    if arg.endswith('.gz'):
         unzip_file(local_filename)
         print('Function unzip Done')
+    print('work with file')
+    # read_file(arg)
+    print('work with file Done ')
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@ import shutil
 import sys
 import gzip
 import re
+import zipfile
 import requests
 
 
@@ -14,11 +15,23 @@ def copy_files(source, destination=os.getcwd()):
         shutil.copy(source, destination)
 
 
+def create_write_file(word):
+    files_names = [chr(x) for x in range(ord('a'), ord('z') + 1)]
+    first_symbol = word[0]
+    file_name = first_symbol + '.txt'
+    if not os.path.isfile(file_name):
+        open(file_name, 'a').close()
+    if first_symbol in files_names:
+        with open(file_name, 'a') as f:
+            f.write(word + '\n')
+
+
 def unzip_file(local_file):
-    unziped_name = '.'.join(local_file.split('.')[0:2])
+    unzip_name = '.'.join(local_file.split('.')[0:2])
     with gzip.open(local_file, 'rb') as f_in:
-        with open(unziped_name, 'wb') as f_out:
+        with open(unzip_name, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out) #It's STREAM!!!! not a file
+
 
 def zip_files():
     pass
@@ -42,11 +55,8 @@ def download_file(url):
 def read_file(local_file):
     with open(local_file, 'r') as f:
         for line in f:
-            if re.search(r'^[a-zA-Z]', line[0]):
+            if re.search(r'[a-zA-Z\s]', line[0]):
                 print(line.replace(' ', '').lower())
-
-
-
 
 
 def main(arg):
@@ -64,16 +74,16 @@ def main(arg):
     if arg.endswith('.gz'):
         unzip_file(local_filename)
         print('Function unzip Done')
-    # print('work with file')
     read_file(arg)
-    # print('work with file Done ')
 
 
 if __name__ == '__main__':
+    create_write_file('apple')
+    create_write_file('aspen')
     while True:
-        #command = str(input('Enter path to the file or URL: '))
+        command = str(input('Enter path to the file or URL: '))
         # command = '10K-english-words.txt'
-        command = 'file.txt'
+        # command = 'file.txt'
         if command != 'exit':
             if command.endswith(('.txt', '.txt.gz')):
                 main(command)

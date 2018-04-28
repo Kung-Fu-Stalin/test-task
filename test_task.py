@@ -3,8 +3,9 @@ import shutil
 import sys
 import gzip
 import re
-import zipfile
 import requests
+from zipfile import ZipFile
+
 
 
 def copy_files(source, destination=os.getcwd()):
@@ -33,15 +34,18 @@ def unzip_file(local_file):
             shutil.copyfileobj(f_in, f_out) #It's STREAM!!!! not a file
 
 
-def zip_files():
-    pass
+def zip_file(cwd=os.getcwd()):
+    files_to_zip = [chr(x) + '.txt' for x in range(ord('a'), ord('z') + 1)]
+    with ZipFile('dictionary.zip', 'w') as zip:
+        for file_name in files_to_zip:
+            zip.write(file_name)
 
 
 def download_file(url):
     local_filename = url.split('/')[-1]
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
                 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-    my_request = requests.get(url, stream=True, headers=headers)
+    my_request = get(url, stream=True, headers=headers)
     print('Request code: ', my_request.status_code)
     if my_request.status_code == 200:
         with open(local_filename, 'wb') as f:

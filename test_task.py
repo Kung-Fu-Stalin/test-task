@@ -83,25 +83,23 @@ def main():
             if not arg.endswith(('.txt', '.txt.gz')):
                 print(local_filename, 'is not *.txt or *.txt.gz file')
             else:
-                is_request_correct = True
                 if arg.startswith('http'):
                     downloaded_file = download_file(arg)
                     if downloaded_file is False:
                         print('Bad request')
-                        is_request_correct = False
+                        continue
                     else:
                         print('File: {0} is downloaded!'.format(download_file))
                 elif '/' in arg:  # TODO: Add backslash from win32
                     if os.path.isfile(arg):
                         copy_files(arg)
                         print('File: copy {} created'.format(local_filename))
-                if is_request_correct:
-                    if arg.endswith('.gz'):
-                        local_filename = unzip_file(local_filename)
-                        print('Function unzip Done')
-                    read_file(local_filename)
-                    zip_file()
-                    print('Done')
+                if arg.endswith('.gz'):
+                    local_filename = unzip_file(local_filename)
+                    print('Function unzip Done')
+                read_file(local_filename)
+                zip_file()
+                print('Done')
         except FileNotFoundError:
             print('File not found!')
 

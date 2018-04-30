@@ -6,10 +6,17 @@ import re
 import requests
 from zipfile import ZipFile
 
+def win_platform():
+    if sys.platform == 'win32':
+        return True
+    else:
+        return False
 
 def remove_temp_files(is_archive, local_filename):
+    if win_platform():
+        os.remove(os.getcwd() + '\\' + local_filename)
     if is_archive is True:
-        os.remove(os.getcwd() + '/' + local_filename) # TODO: WIN32 check
+        os.remove(os.getcwd() + '/' + local_filename)
 
 
 def copy_files(source, destination=os.getcwd()):
@@ -44,8 +51,11 @@ def zip_file(cwd=os.getcwd()):
     with ZipFile('dictionary.zip', 'w') as zip_archive:
         for file_name in files_to_zip:
             zip_archive.write(file_name)
+    if win_platform():
+        for zipped_file in files_to_zip:
+            os.remove(cwd + '\\' + zipped_file)
     for zipped_file in files_to_zip:
-        os.remove(cwd + '/' + zipped_file) # TODO: WIN32 check
+        os.remove(cwd + '/' + zipped_file)
 
 
 def download_file(url):
@@ -76,32 +86,32 @@ def read_file(local_file):
 def main():
     while True:
         try:
-            arg = str(input('Enter path to the file or URL: '))
-            local_filename = arg.split('/')[-1]
-            if arg == 'exit':
+            command = str(input('Enter path to the file or URL: '))
+            local_filename = command.split('/')[-1]
+            if command == 'exit':
                 sys.exit()
-            if not arg.endswith(('.txt', '.txt.gz')):
+            if not command.endswith(('.txt', '.txt.gz')):
                 print(local_filename, 'is not *.txt or *.txt.gz file')
             else:
-                isArchive = False
-                if arg.startswith('http'):
-                    downloaded_file = download_file(arg)
+                is_archive = False
+                if command.startswith('http'):
+                    downloaded_file = download_file(command)
                     if downloaded_file is False:
                         print('Bad request')
                         continue
                     else:
                         print('File: {0} is downloaded!'.format(downloaded_file))
-                elif '/' in arg:  # TODO: Add backslash from win32
-                    if os.path.isfile(arg):
-                        copy_files(arg)
+                elif '/' or '\\' in command:
+                    if os.path.isfile(command):
+                        copy_files(command)
                         print('File: copy {} created'.format(local_filename))
-                if arg.endswith('.gz'):
+                if command.endswith('.gz'):
                     local_filename = unzip_file(local_filename)
                     print('Function unzip Done')
-                    isArchive = True
+                    is_archive = True
                 read_file(local_filename)
                 zip_file()
-                remove_temp_files(isArchive, local_filename)
+                remove_temp_files(is_archive, local_filename)
                 print('Done')
         except FileNotFoundError:
             print('File not found!')

@@ -7,10 +7,12 @@ import requests
 from zipfile import ZipFile
 
 
+def remove_temp_files(is_archive, local_filename):
+    if is_archive is True:
+        os.remove(os.getcwd() + '/' + local_filename) # TODO: WIN32 check
+
+
 def copy_files(source, destination=os.getcwd()):
-    # check_path = os.path.isfile(source)
-    # file_size = os.path.getsize(source)
-    # if check_path:
     if sys.platform == 'win32':
         os.system('xcopy {0} {1}'.format(source, destination))
             # shutil.copyfileobj(source, destination) TODO: Check on Win 10
@@ -33,7 +35,7 @@ def unzip_file(local_file):
     unzip_name = '.'.join(local_file.split('.')[0:2])
     with gzip.open(local_file, 'rb') as f_in:
         with open(unzip_name, 'wb') as f_out:
-            shutil.copyfileobj(f_in, f_out)  # It's STREAM!!!! not a file
+            shutil.copyfileobj(f_in, f_out)
     return unzip_name
 
 
@@ -43,7 +45,7 @@ def zip_file(cwd=os.getcwd()):
         for file_name in files_to_zip:
             zip_archive.write(file_name)
     for zipped_file in files_to_zip:
-        os.remove(cwd + '/' + zipped_file)
+        os.remove(cwd + '/' + zipped_file) # TODO: WIN32 check
 
 
 def download_file(url):
@@ -51,8 +53,6 @@ def download_file(url):
         local_filename = url.split('/')[-1]
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
                     AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-        # file_size = requests.head(url).headers['Content-Length'] TODO: Downloading progress
-        # print(file_size)
         my_request = requests.get(url, stream=True, headers=headers)
         print('Request code: ', my_request.status_code)
         if my_request.status_code == 200:
@@ -83,13 +83,14 @@ def main():
             if not arg.endswith(('.txt', '.txt.gz')):
                 print(local_filename, 'is not *.txt or *.txt.gz file')
             else:
+                isArchive = False
                 if arg.startswith('http'):
                     downloaded_file = download_file(arg)
                     if downloaded_file is False:
                         print('Bad request')
                         continue
                     else:
-                        print('File: {0} is downloaded!'.format(download_file))
+                        print('File: {0} is downloaded!'.format(downloaded_file))
                 elif '/' in arg:  # TODO: Add backslash from win32
                     if os.path.isfile(arg):
                         copy_files(arg)
@@ -97,11 +98,15 @@ def main():
                 if arg.endswith('.gz'):
                     local_filename = unzip_file(local_filename)
                     print('Function unzip Done')
+                    isArchive = True
                 read_file(local_filename)
                 zip_file()
+                remove_temp_files(isArchive, local_filename)
                 print('Done')
         except FileNotFoundError:
             print('File not found!')
+        except UnicodeDecodeError:
+            print('Decode Error: file is not \'.txt\' or \'.txt.gz\', but have one of this file extension!')
 
 
 if __name__ == '__main__':

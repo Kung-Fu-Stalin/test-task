@@ -7,22 +7,16 @@ import requests
 from zipfile import ZipFile
 
 
-def win_platform():
-    if sys.platform == 'win32':
-        return True
-    else:
-        return False
+
 
 
 def remove_temp_files(is_archive, local_filename):
-    if win_platform():
-        os.remove(os.getcwd() + '\\' + local_filename)
     if is_archive is True:
-        os.remove(os.getcwd() + '/' + local_filename)
+        os.remove(os.getcwd() + '/' + local_filename) # TODO: WIN32 check
 
 
 def copy_files(source, destination=os.getcwd()):
-    if win_platform():
+    if sys.platform == 'win32':
         os.system('xcopy {0} {1}'.format(source, destination))
             # shutil.copyfileobj(source, destination) TODO: Check on Win 10
     else:
@@ -53,11 +47,8 @@ def zip_file(cwd=os.getcwd()):
     with ZipFile('dictionary.zip', 'w') as zip_archive:
         for file_name in files_to_zip:
             zip_archive.write(file_name)
-    if win_platform():
-        for zipped_file in files_to_zip:
-            os.remove(cwd + '\\' + zipped_file)
     for zipped_file in files_to_zip:
-        os.remove(cwd + '/' + zipped_file)
+        os.remove(cwd + '/' + zipped_file) # TODO: WIN32 check
 
 
 def download_file(url):
@@ -81,44 +72,46 @@ def download_file(url):
 def read_file(local_file):
     with open(local_file, 'r') as f:
         for line in f:
-            if re.search(r'[a-zA-Z\s]', line[0]):
+            if re.search(r'[a-zA-Z\ ]', line[0]):
                 create_write_file(line.replace(' ', '').lower())
 
 
 def main():
     while True:
         try:
-            command = str(input('Enter path to the file or URL: '))
-            local_filename = command.split('/')[-1]
-            if command == 'exit':
+            arg = str(input('Enter path to the file or URL: '))
+            local_filename = arg.split('/')[-1]
+            if arg == 'exit':
                 sys.exit()
-            if not command.endswith(('.txt', '.txt.gz')):
-                print(local_filename, 'is not *.txt or *.txt.gz file')
+            if not arg.endswith(('.txt', '.txt.gz')):
+                print('[E]',local_filename, 'is not *.txt or *.txt.gz file')
             else:
-                is_archive = False
-                if command.startswith('http'):
-                    downloaded_file = download_file(command)
+                isArchive = False
+                if arg.startswith('http'):
+                    downloaded_file = download_file(arg)
                     if downloaded_file is False:
-                        print('Bad request')
+                        print('[E] Bad request')
                         continue
                     else:
                         print('File: {0} is downloaded!'.format(downloaded_file))
-                elif '/' or '\\' in command:
-                    if os.path.isfile(command):
-                        copy_files(command)
+                elif '/' in arg:  # TODO: Add backslash from win32
+                    if os.path.isfile(arg):
+                        copy_files(arg)
                         print('File: copy {} created'.format(local_filename))
-                if command.endswith('.gz'):
+                if arg.endswith('.gz'):
                     local_filename = unzip_file(local_filename)
                     print('Function unzip Done')
-                    is_archive = True
+                    isArchive = True
                 read_file(local_filename)
                 zip_file()
-                remove_temp_files(is_archive, local_filename)
+                remove_temp_files(isArchive, local_filename)
                 print('Done')
         except FileNotFoundError:
-            print('File not found!')
+            print('[E] File not found!')
         except UnicodeDecodeError:
-            print('Decode Error: file is not \'.txt\' or \'.txt.gz\', but have one of this file extension!')
+            print('[E] Decode Error: file is not \'.txt\' or \'.txt.gz\', but have one of this file extension!')
+        except shutil.SameFileError:
+            print('[E] This file alredy exsist!')
 
 
 if __name__ == '__main__':

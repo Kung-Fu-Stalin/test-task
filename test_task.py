@@ -6,11 +6,13 @@ import re
 import requests
 from zipfile import ZipFile
 
+
 def win_platform():
     if sys.platform == 'win32':
         return True
     else:
         return False
+
 
 def remove_temp_files(is_archive, local_filename):
     if win_platform():
@@ -20,7 +22,7 @@ def remove_temp_files(is_archive, local_filename):
 
 
 def copy_files(source, destination=os.getcwd()):
-    if sys.platform == 'win32':
+    if win_platform():
         os.system('xcopy {0} {1}'.format(source, destination))
             # shutil.copyfileobj(source, destination) TODO: Check on Win 10
     else:

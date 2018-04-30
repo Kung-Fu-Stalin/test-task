@@ -8,10 +8,12 @@ from zipfile import ZipFile
 
 
 def copy_files(source, destination=os.getcwd()):
+    # check_path = os.path.isfile(source)
     # file_size = os.path.getsize(source)
+    # if check_path:
     if sys.platform == 'win32':
         os.system('xcopy {0} {1}'.format(source, destination))
-        # shutil.copyfileobj(source, destination) TODO: Check on Win 10
+            # shutil.copyfileobj(source, destination) TODO: Check on Win 10
     else:
         shutil.copy(source, destination)
 
@@ -24,7 +26,7 @@ def create_write_file(word):
         open(file_name, 'a').close()
     if first_symbol in files_names:
         with open(file_name, 'a') as f:
-            f.write(word + '\n')  # TODO: Try to remove '\n'
+            f.write(word)
 
 
 def unzip_file(local_file):
@@ -35,7 +37,6 @@ def unzip_file(local_file):
     return unzip_name
 
 
-
 def zip_file(cwd=os.getcwd()):
     files_to_zip = list(filter(lambda x: re.search(r'^[a-z].txt$', x), os.listdir(cwd)))
     with ZipFile('dictionary.zip', 'w') as zip_archive:
@@ -43,7 +44,6 @@ def zip_file(cwd=os.getcwd()):
             zip_archive.write(file_name)
     for zipped_file in files_to_zip:
         os.remove(cwd + '/' + zipped_file)
-        # print(cwd + '/' + zipped_file)
 
 
 def download_file(url):
@@ -61,10 +61,9 @@ def download_file(url):
                     if chunk:
                         f.write(chunk)
             return local_filename
-        return None
-    except Exception:
-        return None
-
+        return False
+    except requests.exceptions.ConnectionError:
+        return False
 
 
 def read_file(local_file):
@@ -87,7 +86,7 @@ def main():
                 is_request_correct = True
                 if arg.startswith('http'):
                     downloaded_file = download_file(arg)
-                    if downloaded_file is None:
+                    if downloaded_file is False:
                         print('Bad request')
                         is_request_correct = False
                     else:
@@ -95,7 +94,7 @@ def main():
                 elif '/' in arg:  # TODO: Add backslash from win32
                     if os.path.isfile(arg):
                         copy_files(arg)
-                    print('File: copy {} created'.format(local_filename))
+                        print('File: copy {} created'.format(local_filename))
                 if is_request_correct:
                     if arg.endswith('.gz'):
                         local_filename = unzip_file(local_filename)
@@ -105,7 +104,6 @@ def main():
                     print('Done')
         except FileNotFoundError:
             print('File not found!')
-
 
 
 if __name__ == '__main__':

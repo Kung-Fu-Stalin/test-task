@@ -100,7 +100,7 @@ def read_file(local_file):
     """
     Work with file, line by line
     @type: str
-    @param local_file: name of *.txt file (I's can be name of the extracted from archive file)
+    @param local_file: name of *.txt file (It can be name of the extracted from archive file)
     """
     with open(local_file, 'r') as f:
         for line in f:
@@ -149,7 +149,7 @@ def main():
         except FileNotFoundError:
             print('[E] File not found!')
         except UnicodeDecodeError:
-            print('[E] Decode Error: file is not \'.txt\' or \'.txt.gz\', but have one of this file extensions!')
+            print('[E] Decode Error: file is not \'*.txt\' or \'*.txt.gz\', but have one of this file extensions!')
         except shutil.SameFileError:
             print('[E] This file already exist in working directory!')
         except (requests.exceptions.ConnectionError, requests.exceptions.MissingSchema):

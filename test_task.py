@@ -7,28 +7,53 @@ import requests
 from zipfile import ZipFile
 
 
+FILE_NAMES = list(map(chr, range(97, 123)))
+
+
 def remove_temp_files(is_archive, local_filename):
+    """
+    Delete temporary files
+    @type: bool
+    @param is_archive: flag for the archive, if equal False: Ignore
+    @type: str
+    @param local_filename: filename in working directory
+    """
     if is_archive is True:
         os.remove(os.getcwd() + '/' + local_filename)
 
 
 def copy_files(source):
+    """
+    Copy files from user's path
+    @type source: str
+    @param source: path to the file
+    """
     destination = os.getcwd()
     shutil.copy(source, destination)
 
 
 def create_write_file(word):
-    file_names = list(map(chr, range(97, 123)))
+    """
+    Create file if letter contains in word, write files if letter in FILES_NAMES list
+    @type: str
+    @param word: processing word
+    """
     first_symbol = word[0]
     file_name = first_symbol + '.txt'
     if not os.path.isfile(file_name):
         open(file_name, 'a').close()
-    if first_symbol in file_names:
+    if first_symbol in FILE_NAMES:
         with open(file_name, 'a') as f:
             f.write(word)
 
 
 def unzip_file(local_file):
+    """
+    Extract *.txt.gz file
+    @type: str
+    @param local_file: file name
+    @return: Extracted file name
+    """
     unzip_name = '.'.join(local_file.split('.')[0:2])
     with gzip.open(local_file, 'rb') as f_in:
         with open(unzip_name, 'wb') as f_out:
@@ -37,6 +62,10 @@ def unzip_file(local_file):
 
 
 def zip_file():
+    """
+    Add to dictionary.zip only files [a-z] if they are exists.
+    Using ^[a-z].txt$ regex pattern for search
+    """
     cwd = os.getcwd()
     files_to_zip = list(filter(lambda x: re.search(r'^[a-z].txt$', x), os.listdir(cwd)))
     with ZipFile('dictionary.zip', 'w') as zip_archive:
@@ -47,6 +76,12 @@ def zip_file():
 
 
 def download_file(url):
+    """
+    Downloading large file from URL, default chunk_size = 1024. Headers added for 'anti-spider' check.
+    @type: str
+    @param url: downloading URL
+    @return: Downloaded file name, or False is something goes wrong
+    """
     local_filename = url.split('/')[-1]
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
                 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
@@ -62,6 +97,11 @@ def download_file(url):
 
 
 def read_file(local_file):
+    """
+    Work with file, line by line
+    @type: str
+    @param local_file: name of *.txt file (I's can be name of the extracted from archive file)
+    """
     with open(local_file, 'r') as f:
         for line in f:
             if re.search(r'[a-zA-Z\ ]', line[0]):
@@ -69,6 +109,10 @@ def read_file(local_file):
 
 
 def main():
+    """
+    Main part of the Py-script. Build all parts together,
+    added various exceptions, console output and user greeter
+    """
     while True:
         try:
             command = str(input('Enter path to the file or URL: '))
@@ -110,6 +154,8 @@ def main():
             print('[E] This file already exist in working directory!')
         except (requests.exceptions.ConnectionError, requests.exceptions.MissingSchema):
             print('[E] Connection Error')
+        except OSError:
+            print('[E] Not a gzipped file')
 
 
 if __name__ == '__main__':

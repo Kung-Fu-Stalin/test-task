@@ -4,7 +4,7 @@ My solution of the ITS Partners task. It's was intresting to do this :)
 
 ## Requirements
 
-All dependensies you can find in requirements.txt, but if you lazy, (like me), you list is [here]:(https://github.com/Kung-Fu-Stalin/test-task/blob/master/requirements.txt)
+All dependensies you can find in requirements.txt, but if you lazy, (like me), you list is [here](https://github.com/Kung-Fu-Stalin/test-task/blob/master/requirements.txt):
 ```
 certifi==2018.4.16
 chardet==3.0.4
